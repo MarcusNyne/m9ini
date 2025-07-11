@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "m9ini"
 dynamic = ["version"]
 authors = [
-  { name = "M. Fairbanks", email = "marcusnyne@gmail.com" },
+  { name = "M. Fairbanks" }, { email = "marcusnyne@gmail.com" },
 ]
 description = "m9 ini configuration"
 readme = "README.md"
