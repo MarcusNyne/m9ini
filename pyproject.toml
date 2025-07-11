@@ -16,7 +16,6 @@ license-files = ["LICENSE"]
 keywords = ["INI", "configuration", "config", "settings", "parse", "load", "batch"]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
 ]
 dependencies = [
