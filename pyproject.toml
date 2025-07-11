@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "m9ini"
-version = "1.0.0"
+dynamic = ["version"]
 authors = [
   { name = "M. Fairbanks", email = "marcusnyne@gmail.com" },
 ]
@@ -30,3 +30,6 @@ dev = []
 
 [project.urls]
 "Homepage" = "https://github.com/MarcusNyne/m9ini"
+
+[tool.setuptools_scm]
+# Optional: configure setuptools_scm behavior here
