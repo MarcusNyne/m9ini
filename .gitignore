@@ -9,3 +9,5 @@ venv/
 ~*
 MyFile.csv
 config.ini
+install_windows.bat
+requirements.txt
