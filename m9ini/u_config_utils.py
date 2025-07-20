@@ -487,3 +487,14 @@ class ucConsoleColor:
         if self.system is not None:
             return Prefix+ucConsoleColor.Wrap(self.system, Color)+Postfix
         return ""
+
+class ucFolder:
+    @staticmethod
+    def NormalizePath(Path:str)->str:
+        '''
+        Normalizes a path after converting backspaces to foward slashes for compatibility with Linux.
+        '''
+        if isinstance(Path, str):
+            Path = Path.replace('\\', '/')
+            return os.path.normpath(Path)
+        return Path

@@ -1,3 +1,8 @@
+# Copyright (c) 2025 M. Fairbanks
+#
+# This source code is licensed under the Apache License, Version 2.0, found in the
+# LICENSE file in the root directory of this source tree.
+
 from u_color import uConsoleColor
 
 from enum import IntEnum
@@ -203,7 +208,7 @@ class ucFileLogger(ucLogger):
 
         **Filepath** supports **uStringFormat** replacements like **{YMD}** and **{TSM}**.
         '''
-        self.filepath = uStringFormat.String (Filepath)
+        self.filepath = uFolder.NormalizePath(uStringFormat.String (Filepath))
         head, _ = os.path.split(self.filepath)
         uFolder.ConfirmFolder(head)
         self.file = open(self.filepath, 'a')

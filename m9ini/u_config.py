@@ -46,7 +46,7 @@ class uConfig:
         Returns *True* on success.
         '''
         self.__reset()
-        self.filepath = Filepath
+        self.filepath = ucFolder.NormalizePath(Filepath)
         self.failures = []
 
         if Parameters is not None:
@@ -220,6 +220,7 @@ class uConfig:
 
     def __find_ini(self, in_filepath, in_inifile):
         # finds an included ini file
+        in_inifile = ucFolder.NormalizePath(in_inifile)
         if os.path.isfile(in_inifile):
             return in_inifile
         if os.path.isfile(in_inifile+".ini"):
@@ -241,6 +242,7 @@ class uConfig:
         in_loaded_list.append(in_filepath)
         
         lines = []
+        in_filepath = ucFolder.NormalizePath(in_filepath)
         with open(in_filepath, "r") as f:
             for line in f:
                 line = line.strip('\r\n')
@@ -596,7 +598,7 @@ class uConfig:
         Returns *False* on failure, otherwise returns a path to the file that was written.
         '''
 
-        Filepath = ucStringFormat.String(Filepath)
+        Filepath = ucFolder.NormalizePath(ucStringFormat.String(Filepath))
         if os.path.exists(Filepath) and Overwrite is False:
             return False
         
