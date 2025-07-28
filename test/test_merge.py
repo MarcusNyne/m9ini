@@ -22,7 +22,8 @@ class TestMerge(_test_case.uTestCase):
         self.assertEqual(section.GetName(), "Merged")
         self.assertEqual(config.GetSectionValue("Merged", "x"), "xxx")
         self.assertEqual(config.GetSectionValue("Merged", "y"), "two")
-        self.assertEqual(config.GetSectionValue("Merged", "z"), "")
+        self.assertEqual(config.GetSectionValue("Merged", "z"), None)
+        self.assertEqual(config.GetSectionValue("Merged", "z", BlankIsNone=False), "")
         self.assertEqual(config.GetSectionValue("Merged", "Test"), "black xxx")
         self.assertEqual(config.GetSectionValue("Merged", "More"), "ha")
         self.assertEqual(section.FormatString("[=Test]"), "black xxx")
@@ -32,7 +33,8 @@ class TestMerge(_test_case.uTestCase):
         self.assertEqual(section.GetName(), "Merged2")
         self.assertEqual(config.GetSectionValue("Merged2", "x"), "one")
         self.assertEqual(config.GetSectionValue("Merged2", "y"), "two")
-        self.assertEqual(config.GetSectionValue("Merged2", "z"), "")
+        self.assertEqual(config.GetSectionValue("Merged2", "z"), None)
+        self.assertEqual(config.GetSectionValue("Merged2", "z", BlankIsNone=False), "")
         self.assertEqual(config.GetSectionValue("Merged2", "Test"), "one")
         self.assertEqual(config.GetSectionValue("Merged2", "More"), "[=ho]")
         self.assertFailureCodes(config, ["[E11]"])
@@ -43,7 +45,8 @@ class TestMerge(_test_case.uTestCase):
         self.assertEqual(section.GetName(), "Merged3")
         self.assertEqual(config.GetSectionValue("Merged3", "x"), "one")
         self.assertEqual(config.GetSectionValue("Merged3", "y"), "two")
-        self.assertEqual(config.GetSectionValue("Merged3", "z"), "")
+        self.assertEqual(config.GetSectionValue("Merged3", "z"), None)
+        self.assertEqual(config.GetSectionValue("Merged2", "z", BlankIsNone=False), "")
         self.assertEqual(config.GetSectionValue("Merged3", "Test"), "one")
         self.assertEqual(config.GetSectionValue("Merged3", "More"), "[=ho]")
         self.assertFailureCodes(config, ["[E11]"])
@@ -57,9 +60,11 @@ class TestMerge(_test_case.uTestCase):
         self.assertFailureCodes(config, ["[E11]"])
         self.assertEqual(config.GetSectionValue("Third", "PropTest"), "[=NewProp]")
         self.assertFailureCodes(config, ["[E11]"])
+
         section = config.GetSection("Third")
         section.SetProperty("NewProp", "Silver")
         self.assertEqual(config.GetSectionValue("Third", "PropTest"), "Silver")
+
         merged1 = config.GetSection("Merged")
         section.SetLink("Other", merged1)
         self.assertEqual(config.GetSectionValue("Third", "LinkTest"), "black xxx")
@@ -67,7 +72,8 @@ class TestMerge(_test_case.uTestCase):
         self.assertEqual(dprop['PropTest'], "Silver")
         self.assertEqual(dprop['NewProp'], "Silver")
         self.assertTrue(isinstance(dprop['Other'], uConfigSection))
-        self.assertEqual(dprop['Other'].GetValue("z"), "")
+        self.assertEqual(dprop['Other'].GetValue("z"), None)
+        self.assertEqual(dprop['Other'].GetValue("z", BlankIsNone=False), '')
 
         # test expansion order
         snames = [section.GetName() for section in config.sections][1:6]

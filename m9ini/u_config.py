@@ -429,23 +429,27 @@ class uConfig:
         # returns a string value
         return self.GetSectionLink('*root', Name)
        
-    def HasValue(self, Name)->str:
+    def HasValue(self, Name, BlankIsNone=True)->str:
         '''
         Returns *True* if the specified value was defined in configuration.
         
         Equivalent to HasSectionValue('*root', Name).
+
+        If **BlankIsNone** is *True, an blank value in configuration returns *False*.  Otherwise, a *True* is returned.
         '''
         # returns a string value
-        return self.HasSectionValue('*root', Name)
+        return self.HasSectionValue('*root', Name, BlankIsNone=BlankIsNone)
     
-    def GetValue(self, Name, Default=None)->str:
+    def GetValue(self, Name, Default=None, BlankIsNone=True)->str:
         '''
         Returns a root value.  Equivalent to GetSectionValue('*root', Name).
 
         If *Name* is not found, *Default* is returned.
+
+        If **BlankIsNone** is *True*, a blank value specified in configuration is returned as *None*, and defaults apply.  Otherwise, an empty string is returned.
         '''
         # returns a string value
-        return self.GetSectionValue('*root', Name, Default)
+        return self.GetSectionValue('*root', Name, Default, BlankIsNone=BlankIsNone)
     
     def GetBool(self, Name, Default=None)->bool:
         '''
@@ -497,7 +501,7 @@ class uConfig:
 
         return None
     
-    def HasSectionValue(self, Section, Name, Raw=False)->str:
+    def HasSectionValue(self, Section, Name, Raw=False, BlankIsNone=True)->str:
         '''
         Returns *True* if the value was defined using a section specification by getting the first matching section.
 
@@ -508,13 +512,15 @@ class uConfig:
         Returns *False* if there is no matching section, or the section does not have the named value.
 
         If **Raw** is *True*, does not apply defaults, overrides, or parameters.
+
+        If **BlankIsNone** is *True, an blank value in configuration returns *False*.  Otherwise, a *True* is returned.
         '''
         section = self.GetSection(Section)
         if section is not None:
-            return section.HasValue(Name, Raw=Raw)
+            return section.HasValue(Name, Raw=Raw, BlankIsNone=BlankIsNone)
         return False
 
-    def GetSectionValue(self, Section, Name, Default=None, Raw=False)->str:
+    def GetSectionValue(self, Section, Name, Default=None, Raw=False, BlankIsNone=True)->str:
         '''
         Gets a value using a section specification by getting the first matching section.
 
@@ -525,10 +531,12 @@ class uConfig:
         Returns *Default* if there is no matching section, or the section does not have the named value.
 
         If **Raw** is *True*, does not apply defaults, overrides, or parameters.
+
+        If **BlankIsNone** is *True*, a blank value specified in configuration is returned as *None*, and defaults apply.  Otherwise, an empty string is returned.
         '''
         section = self.GetSection(Section)
         if section is not None:
-            return section.GetValue(Name, Default=Default, Raw=Raw)
+            return section.GetValue(Name, Default=Default, Raw=Raw, BlankIsNone=BlankIsNone)
         return Default
 
     def GetSectionBool(self, Section, Name, Default=None)->bool:

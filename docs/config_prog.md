@@ -47,8 +47,8 @@ if cfg.HasFailures():
 
 Access methods can be found on both the **uConfig** and **uConfigSection** classes.  _None_ is returned when a value is not found. **uConfig** methods access `*root` section values.  The `*root` section has values that come before any section headers are specified.
 
-- **HasValue(*Name*, *Raw*=False)**: Returns _True_ if the value was provided in configuration
-- **GetValue(*Name*,*Default*=None,*Raw*=False)**: Value as a string
+- **HasValue(*Name*, *Raw*=False, *BlankIsNone*=True)**: Returns _True_ if the value was provided in configuration
+- **GetValue(*Name*,*Default*=None,*Raw*=False, *BlankIsNone*=True)**: Value as a string
 - **GetBool(*Name*,*Default*=None)**: Returns _True_ when value is "true", case insensitive; otherwise _False_
 - **GetNumber(*Name*,*Default*=None)**: Returns value as an int.  Returns _False_ when value does not convert to int
 - **GetFloat(*Name*,*Default*=None)**: Returns value as a float.  Returns _False_ when value does not convert to float
@@ -56,8 +56,8 @@ Access methods can be found on both the **uConfig** and **uConfigSection** class
 
 **uConfig** also has quick methods for accessing section values directly.  If there are multiple sections with the same name, accesses the first one.
 
-- **HasSectionValue(*Section*,*Name*,*Default*=None,*Raw*=False)**
-- **GetSectionValue(*Section*,*Name*,*Default*=None,*Raw*=False)**
+- **HasSectionValue(*Section*,*Name*,*Default*=None,*Raw*=False, *BlankIsNone*=True)**
+- **GetSectionValue(*Section*,*Name*,*Default*=None,*Raw*=False, *BlankIsNone*=True)**
 - **GetSectionBool(*Section*,*Name*,*Default*=None)**
 - **GetSectionNumber(*Section*,*Name*,*Default*=None)**
 - **GetSectionFloat(*Section*,*Name*,*Default*=None)**
@@ -73,12 +73,35 @@ The priority order of a returned value is:
   3. A section value
   4. A `[*default]` section in the configuration file
 
-When a configuration property appears in configuration but is blank, **HasValue()** will return *True* and **GetValue()** will return an empty string.
+When a configuration property appears in configuration but is blank, **HasValue()** will return *False* and **GetValue()** will return None.
+
+This behavior can be changed by specifying **BlankIsNone** of *False*, in which case the empty string is returned.
+
 
 ```ini
-[MySection]
+[One]
+# property not specified
+
+[Two]
 # property specified but is blank
 MyProp=
+```
+
+```python
+# returns None
+config.GetSectionValue('One', 'MyProp')
+# returns None
+config.GetSectionValue('One', 'MyProp', BlankIsNone=False)
+
+# returns None
+config.GetSectionValue('Two', 'MyProp')
+# returns ""
+config.GetSectionValue('Two', 'MyProp', BlankIsNone=False)
+
+# returns "Egg"
+config.GetSectionValue('Two', 'MyProp', Default="Egg")
+# returns ""
+config.GetSectionValue('Two', 'MyProp', Default="Egg", BlankIsNone=False)
 ```
 
 ### Section access
@@ -110,8 +133,8 @@ Return a list of sections.
 - **IsMatch(*Name*=None,*Id*=None,*Label*=None)**: Returns *True* when section satisfies some combination of section name, id, or label
 
 The section also has the normal property access methods.
-- **HasValue(*Name*, *Raw*=False)**
-- **GetValue(*Name*)**
+- **HasValue(*Name*, *Raw*=False, *BlankIsNone*=True)**
+- **GetValue(*Name*, *BlankIsNone*=True)**
 - **GetBool(*Name*)**
 - **GetNumber(*Name*)**
 - **GetFloat(*Name*)**
