@@ -14,8 +14,12 @@ class TestConfig(_test_case.uTestCase):
 
     def test_config_structure(self):
         # by default, GetValue () accesses root level
-        self.assertEqual(self.config.GetValue('empty'), "")
+        self.assertEqual(self.config.GetValue('empty'), None)
+        self.assertEqual(self.config.GetValue('empty', Default='ping'), 'ping')
+        self.assertEqual(self.config.GetValue('empty', BlankIsNone=False), "")
+        self.assertEqual(self.config.GetValue('empty', Default='ping', BlankIsNone=False), "")
         self.assertEqual(self.config.GetValue('not-found'), None)
+        self.assertEqual(self.config.GetValue('not-found', Default='ping'), 'ping')
         self.assertEqual(self.config.GetValue('foo'), '9')
         # test that a number is converting properly
         self.assertEqual(self.config.GetNumber('foo'), 9)
@@ -73,14 +77,25 @@ class TestConfig(_test_case.uTestCase):
         config_ini = self.GetFilepath("test_blank.ini")
         config = uConfig(config_ini)
         section = config.GetSection("Blank")
-        self.assertEqual(section.HasValue("two"), True)
-        self.assertEqual(section.GetValue("two"), "")
+        self.assertEqual(section.HasValue("two"), False)
+        self.assertEqual(section.HasValue("two", BlankIsNone=False), True)
+        self.assertEqual(section.GetValue("two"), None)
+        self.assertEqual(section.GetValue("two", BlankIsNone=False), '')
+        self.assertEqual(section.HasValue("two"), False)
+        self.assertEqual(section.HasValue("two", BlankIsNone=False), True)
+        self.assertEqual(section.GetValue("two"), None)
+        self.assertEqual(section.GetValue("two", BlankIsNone=False), '')
         section = config.GetSection("Blank2")
-        self.assertEqual(section.HasValue("two"), True)
-        self.assertEqual(section.GetValue("two"), "")
-        self.assertEqual(section.HasValue("four"), True)
-        self.assertEqual(section.GetValue("four"), "")
+        self.assertEqual(section.HasValue("two"), False)
+        self.assertEqual(section.GetValue("two"), None)
+        self.assertEqual(section.HasValue("two", BlankIsNone=False), True)
+        self.assertEqual(section.GetValue("two", BlankIsNone=False), '')
+        self.assertEqual(section.HasValue("four"), False)
+        self.assertEqual(section.GetValue("four"), None)
+        self.assertEqual(section.HasValue("four", BlankIsNone=False), True)
+        self.assertEqual(section.GetValue("four", BlankIsNone=False), '')
         self.assertEqual(section.FormatString("x[=two]x"), "xx")
+        pass
 
     def test_config_include(self):
         self.assertEqual(self.config.GetSection('global_section').GetValue('global_value'),'lalala')

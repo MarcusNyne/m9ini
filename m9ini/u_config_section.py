@@ -273,7 +273,7 @@ class uConfigSection (ucDictionary):
                         if dprops[p].startswith("^LNK^"):
                             v = self.GetLink(p, Raw=Raw)
                         else:
-                            v = self.GetValue(p, Raw=Raw)
+                            v = self.GetValue(p, Raw=Raw, BlankIsNone=False)
                     # if v is not None:
                     dprops[p] = v
         else:
@@ -333,11 +333,13 @@ class uConfigSection (ucDictionary):
     
     # Dictionary access
 
-    def HasValue(self, Name, Raw=False)->bool:
+    def HasValue(self, Name, Raw=False, BlankIsNone=True)->bool:
         '''
         Returns *True* if a named configuration value is available.
 
         If **Raw** is *True*, skips parameters, overrides, etc.
+
+        If **BlankIsNone** is *True, an blank value in configuration returns *False*.  Otherwise, a *True* is returned.
         '''
 
         if Raw is True:
@@ -346,14 +348,21 @@ class uConfigSection (ucDictionary):
         if Name.startswith('*'):
             return self.section_header.HasValue(Name)
 
+        vstr = None
         if super().HasValue(Name):
-            return True
+            vstr = super().GetValue(Name)
+            if isinstance(vstr, str):
+                vstr = vstr.strip()
+                if BlankIsNone is False or vstr!='':
+                    return True
+            else:
+                return True
 
         if Name in self.overrides:
             return True
         
-        if isinstance(self.base, uConfigSection):
-            return self.base.HasValue(Name)
+        if isinstance(self.base, uConfigSection) and vstr!='':
+            return self.base.HasValue(Name, BlankIsNone=BlankIsNone)
 
         return False
     
@@ -392,7 +401,7 @@ class uConfigSection (ucDictionary):
         link = self.__getlinksection(f"{self.GetSpecification()}.{Name}", value, in_raw=Raw)
         return link if isinstance(link, uConfigSection) else None
     
-    def GetValue(self, Name, Default=None, Raw=False)->str:
+    def GetValue(self, Name, Default=None, Raw=False, BlankIsNone=True)->str:
         '''
         Returns a configuration value, using the following priority:
         1. If *Name* is one of "*id", "*class", "*name", calls GetId(), GetClass(), or GetName()
@@ -407,6 +416,8 @@ class uConfigSection (ucDictionary):
         2. Returns **Default**
 
         If the named property is a section link, returns a string representation of the section.  If you would like a **uConfigSection**, use **GetLink()** instead.
+
+        If **BlankIsNone** is *True*, a blank value specified in configuration is returned as *None*, and defaults apply.  Otherwise, an empty string is returned.
         '''
         # disable cache for backwards references
         cache = None
@@ -423,8 +434,11 @@ class uConfigSection (ucDictionary):
         if cache is not None and Name in cache:
             cache[Name] = value
 
-        return Default if value is None else value
+        if BlankIsNone and value=='':
+            value = None
 
+        return Default if value is None else value
+    
     def __getvalue(self, Name, Raw=False)->str:
         # recursion limit check
         if uConfigSection._section_lock.Lock(self, Name) is False:
@@ -711,7 +725,7 @@ class uConfigSection (ucDictionary):
                     # replace token with property value if it starts with $
                     if isinstance(in_tokens[0], str) and in_tokens[0].startswith('$'):
                         # [5.13] Property name redirect to a local property
-                        new_token = self.GetValue(in_tokens[0][1:])
+                        new_token = self.GetValue(in_tokens[0][1:], BlankIsNone=False)
                         if new_token is None:
                             self.__add_failure("E13", f"Property indirection failure (\"{in_tokens[0][1:]}\" not found){self.__instr(in_replace)}")
                             return None
@@ -753,7 +767,7 @@ class uConfigSection (ucDictionary):
                     # replace token with property value if it starts with $
                     if isinstance(in_tokens[0], str) and in_tokens[0].startswith('$'):
                         # [5.13] Property name redirect to a local property
-                        new_token = self.GetValue(in_tokens[0][1:])
+                        new_token = self.GetValue(in_tokens[0][1:], BlankIsNone=False)
                         if new_token is None:
                             self.__add_failure("E13", f"Property indirection failure (\"{in_tokens[0][1:]}\" not found){self.__instr(in_replace)}")
                             return None
@@ -781,7 +795,7 @@ class uConfigSection (ucDictionary):
                         uConfigSection.__supress_failure_messages += 1
                         try:
                             for si in list(reversed(range(len(self.source_reference)))):
-                                value = self.source_reference[si].GetValue(in_tokens[0], Raw=in_raw)
+                                value = self.source_reference[si].GetValue(in_tokens[0], Raw=in_raw, BlankIsNone=False)
                                 if value:
                                     break
                         except:
@@ -815,12 +829,12 @@ class uConfigSection (ucDictionary):
             return None
         
         if in_element is self:
-            return self.GetValue(in_value, Raw=in_raw)
+            return self.GetValue(in_value, Raw=in_raw, BlankIsNone=False)
         
         in_element.source_reference.extend(self.source_reference)
         in_element.source_reference.append(self)
         try:
-            in_value = in_element.GetValue(in_value, Raw=in_raw)
+            in_value = in_element.GetValue(in_value, Raw=in_raw, BlankIsNone=False)
         except Exception as e:
             in_value = None
         for i in list(range(len(self.source_reference)+1)):
@@ -906,7 +920,7 @@ class uConfigSection (ucDictionary):
         indirection_failure = False
         if isinstance(in_name, str) and in_name.startswith('$'):
             # [5.11] Section name redirect to a local property
-            new_name = self.GetValue(in_name[1:])
+            new_name = self.GetValue(in_name[1:], Raw=in_raw, BlankIsNone=False)
             if new_name is None:
                 self.__add_failure("E13", f"Property indirection failure (\"{in_name[1:]}\" not found){self.__instr(None)}")
                 indirection_failure = True
@@ -914,7 +928,7 @@ class uConfigSection (ucDictionary):
 
         if isinstance(in_id, str) and in_id.startswith('$'):
             # [5.12] Section id redirect to a local property
-            new_id = self.GetValue(in_id[1:])
+            new_id = self.GetValue(in_id[1:], Raw=in_raw, BlankIsNone=False)
             if new_id is None:
                 self.__add_failure("E13", f"Property indirection failure (\"{in_id[1:]}\" not found){self.__instr(None)}")
                 indirection_failure = True
