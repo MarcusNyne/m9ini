@@ -520,7 +520,7 @@ class uConfigSection (ucDictionary):
         return ucType.ConvertToFloat(self.GetValue(Name, Default))
 
     def GetList(self, Name, Separator=',')->list:
-        return ucType.ConvertToList(self.GetValue(Name))
+        return ucType.ConvertToList(self.GetValue(Name), Separator)
     
     # modify native properties
 
